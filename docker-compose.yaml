@@ -1,18 +1,18 @@
 version: "3.7"
 services:
-  varnish:
-    build:
-      context: ./build/varnish
-    image: magento2-varnish
-    ports:
-      - "80:6081"
-    volumes:
-      - ./build/varnish/etc/varnish.vcl:/etc/varnish/varnish.vcl
-    networks:
-      - frontend
-      - backend
-    depends_on:
-      - webserver
+  # varnish:
+  #   build:
+  #     context: ./build/varnish
+  #   image: magento2-varnish
+  #   ports:
+  #     - "80:6081"
+  #   volumes:
+  #     - ./build/varnish/etc/varnish.vcl:/etc/varnish/varnish.vcl
+  #   networks:
+  #     - frontend
+  #     - backend
+  #   depends_on:
+  #     - webserver
 
   # webserver:
   #   build:
@@ -38,7 +38,7 @@ services:
       context: .
       dockerfile: ./build/httpd/Dockerfile
     ports:
-      - "8080:8080"
+      - "80:8080"
     volumes:
       - ./src/pub:/var/www/html/pub:cached
       - ./build/httpd/etc/httpd.conf:/usr/local/apache2/conf/httpd.conf
@@ -74,23 +74,23 @@ services:
     env_file:
       - .env
 
-  cron:
-    image: magento2-php-fpm
-    volumes:
-      - ./src:/var/www/html:cached
-      - ./build/php-fpm/etc/www.conf:/usr/local/etc/php-fpm.d/www.conf
-    networks:
-      - backend
-    depends_on:
-      - redis
-      - mysql
-      - php-fpm
-    env_file:
-      - .env
-    command:
-      - "sh"
-      - "-c"
-      - "bin/magento cron:install; crontab -l > crontab; tini -- supercronic crontab"
+  # cron:
+  #   image: magento2-php-fpm
+  #   volumes:
+  #     - ./src:/var/www/html:cached
+  #     - ./build/php-fpm/etc/www.conf:/usr/local/etc/php-fpm.d/www.conf
+  #   networks:
+  #     - backend
+  #   depends_on:
+  #     - redis
+  #     - mysql
+  #     - php-fpm
+  #   env_file:
+  #     - .env
+  #   command:
+  #     - "sh"
+  #     - "-c"
+  #     - "bin/magento cron:install; crontab -l > crontab; tini -- supercronic crontab"
 
   mysql:
     image: mariadb:10.2
@@ -98,7 +98,7 @@ services:
       - "6603:3306"
     volumes:
       - ./tmp/mysql:/var/lib/mysql
-      - ./build/mysql/etc/my.cnf:/etc/mysql/my.cnf
+      - ./build/mysql/etc:/etc/mysql
     networks:
       - backend
     environment:
@@ -122,15 +122,15 @@ services:
     networks:
       - backend
 
-  mail:
-    image: mailhog/mailhog
-    command: ["-smtp-bind-addr", "0.0.0.0:1025", "-storage=maildir", "-maildir-path=/data"]
-    volumes:
-      - ./tmp/mailhog:/data
-    ports:
-      - "8025:8025"
-    networks:
-      - backend
+  # mail:
+  #   image: mailhog/mailhog
+  #   command: ["-smtp-bind-addr", "0.0.0.0:1025", "-storage=maildir", "-maildir-path=/data"]
+  #   volumes:
+  #     - ./tmp/mailhog:/data
+  #   ports:
+  #     - "8025:8025"
+  #   networks:
+  #     - backend
 
 #  newrelic-agent:
 #    image: newrelic/php-daemon
